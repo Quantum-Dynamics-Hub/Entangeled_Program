@@ -8,11 +8,11 @@ set tmargin at screen 0.95
 
 #set xtics 1250.0
 set xrange[0:0.3]
-set yrange[-2.0:2.2]
+set yrange[-1.25:-0.6]
 set key spacing 1.0 font ",24"
 set key horizontal 
 
-set label "ETHD N = 100" at 0.18, 1.85 font "arial,24"
+set label "RPMD N = 100" at 0.175, -0.7 font "arial,24"
 
 # color definitions
 set style line 11 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 5 # --- red
