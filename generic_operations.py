@@ -5,13 +5,11 @@ import sys
 import math
 import methods
 
-"""
 if sys.platform=="cygwin":
     from cyglibra_core import *
 elif sys.platform=="linux" or sys.platform=="linux2":
     from liblibra_core import *
 from libra_py import *
-"""
 
 def double_well_potential(q):
 # Defines the double_well potential. 
@@ -87,6 +85,38 @@ def propagate_q(q, p, m, dt):
     for i in range(N):
         q[i] = q[i] + p[i]*dt/m
     return q
+
+def compute_omega(q, m, approx, model):
+# A temperature will be chosne such that the RPMD and EHTD perturbation terms are initially equal
+
+    N = len(q)
+
+    rpmd_sum, ethd_term = 0.0, 0.0
+    for i in range(N):
+
+        if i != N-1:
+            rpmd_sum += (q[i] - q[i+1])*(q[i] - q[i+1])
+        if i == N-1:
+            rpmd_sum += (q[i] - q[0])*(q[i] - q[0])
+
+    V, f = methods.compute_ETHD_pot_force(q, m, approx, model)
+    ethd_term = V[1]
+    Kb = 0.0000031668
+
+    num = math.sqrt( 2.0*ethd_term )
+    denom2 = Kb*N*math.sqrt( rpmd_sum*m )
+    T = num/denom2
+
+    # Compute omega
+    omega = N*T*Kb
+
+    # With omega now computed, we should check to see if the RPMD and ETHD perturbations are equal
+    rpmd_term = 0.5*m*omega*omega*rpmd_sum
+    print "Initial Value of RPMD perturbation = ", rpmd_term/float(N)
+    print "Initial Value of ETHD perturbation = ", ethd_term/float(N)
+    print "RPMD Temperature = ", T
+
+    return omega
 
 def traj_absorb(q, p, q_max):
     """
