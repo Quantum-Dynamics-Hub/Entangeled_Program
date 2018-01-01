@@ -23,19 +23,27 @@ def compute_RPMD_pot_force(q, w, m, approx, model):
 
     if approx == 2:       
 
+        # For Potential
+        for i in range(N):
+
+            if i != N-1:
+                pot[1] += (q[i] - q[i+1])*(q[i] - q[i+1])
+            else:
+                pot[1] += (q[i] - q[0])*(q[i] - q[0])
+
+       # For Forces
         for i in range(N):
 
             if i == 0:
                 f[i] = f[i] - m*w*w*(2.0*q[i] - q[N-1] - q[i+1])
-                pot[1] = pot[1] + 0.5*m*w*w*(q[i] - q[N-1])*(q[i] - q[N-1])
 
             if i == N-1:
                 f[i] = f[i] - m*w*w*(2.0*q[i] - q[i-1] - q[0])
-                pot[1] = pot[1] + 0.5*m*w*w*(q[i] - q[i-1])*(q[i] - q[i-1])
 
             else:
                 f[i] = f[i] - m*w*w*(2.0*q[i] - q[i-1] - q[i+1])
-                pot[1] = pot[1] + 0.5*m*w*w*(q[i] - q[i-1])*(q[i] - q[i-1])
+
+    pot[1] = pot[1] * 0.5*m*w*w
 
     return pot, f
 

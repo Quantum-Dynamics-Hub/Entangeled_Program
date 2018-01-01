@@ -98,37 +98,51 @@ def propagate_methods(q, p, w, m, f, dt, approx, model, ent_type):
     return q, p
 
 #############################################################################
-def main(q, p, w, q_grid, p_grid, q_max, Nsteps, Nsnaps, m, dt, approx, model, ent_type, vel):
+def main(q, p, q_grid, p_grid, q_max, Nsteps, Nsnaps, m, dt, approx, model, ent_type, vel):
 
     N = len(q)
     t = 0.0; orig = float(N); barrier = 0.0; QG = len(q_grid); PG = len(p_grid)
 
+    w = generic_operations.compute_omega(q, m, approx, model)
+    print "omega = ", w
+    
+    if model == 1:
+        barrier = 0.67
+    if model == 2:
+        barrier = 0.0
 
     # Initilize forces
     if ent_type == 1:
         V, f = methods.compute_ETHD_pot_force(q, m, approx, model)
-        barrier = 0.67
     if ent_type == 2:
         V, f = methods.compute_RPMD_pot_force(q, w, m, approx, model)
-        barrier = 0.0
     if ent_type == 3:
         V, f = methods.compute_QHD2_pot_force(q, w, m, approx, model)
 
-    V = sum(V)
-    T = generic_operations.compute_kin(p, m)
-    E = V + T
+    print "Calling RPMG force, see if V[1] Matches"
+    print "V[0] = ", V[0]/float(N)
+    print "V[1] = ", V[1]/float(N)
 
     os.system("mkdir energy")
     os.system("mkdir phase_space")
     os.system("mkdir pos_space")
     os.system("mkdir distribution_data")
     os.system("mkdir tunnel")
+    os.system("mkdir perturbation")
 
     e = open("energy/energy.txt", "w")
     r = open("phase_space/phase_space.txt", "w")
     g = open("pos_space/pos_space.txt", "w")
     h = open("distribution_data/dist.txt", "w")
     hh = open("tunnel/tunnel.txt", "w")
+    s = open("perturbation/perturbation.txt", "w")
+
+    s.write(" %8.5f  %8.5f" % (t, V[1]/float(N)) ),
+    s.write( "\n" )
+
+    V = sum(V)
+    T = generic_operations.compute_kin(p, m)
+    E = V + T
     
     ### Printing Initial Distribution Information
     for j in range(QG):
@@ -164,7 +178,6 @@ def main(q, p, w, q_grid, p_grid, q_max, Nsteps, Nsnaps, m, dt, approx, model, e
             q, p = rescale(q, p, w, m, q_max, approx, model, vel, ent_type)
             N = len(q)
 
-
             if ent_type == 1:
                 V, f = methods.compute_ETHD_pot_force(q, m, approx, model)
             if ent_type == 2:
@@ -172,7 +185,10 @@ def main(q, p, w, q_grid, p_grid, q_max, Nsteps, Nsnaps, m, dt, approx, model, e
             if ent_type == 3:
                 V, f = methods.compute_QHD2_pot_force(q, w, m, approx, model)
 
-        
+
+        s.write(" %8.5f  %8.5f" % (t, V[1]/float(N)) ),
+        s.write( "\n" )
+
         V = sum(V)
         T = generic_operations.compute_kin(p, m)
         E = V + T
@@ -205,15 +221,16 @@ sigma_q = 0.04
 sigma_p = 0.0               
 q_mean = -1.1	                      
 p_mean = 0.0                 
-M = 5000                           
+M = 100                           
 q = []; p = []
 for i in range(M):
     q.append(q_mean + sigma_q * rnd.normal() )
     p.append(p_mean + sigma_p * rnd.normal() )
-#    q.append(-0.45 + 0.005*i)
+#    q.append(-1.35 + 0.005*i)
 #    p.append(0.0)
 
 q_max = 50.0
+m = 2000.0
 
 q_grid = []; p_grid = []
 for i in range(-200,500):
@@ -221,5 +238,5 @@ for i in range(-200,500):
 
 for i in range(-100,500):
     p_grid.append(0.1*i)                                
-#                                        Nstep     Nsnap       mass        dt       approx       model        Entanglement_type       vel_rescale
-main(q, p, 1.0, q_grid, p_grid, q_max,    100,     4200,      2000.0,      0.1,       2,          2,                1,                    0)                                                      
+#                                   Nstep      Nsnap     mass    dt       approx       model        Entanglement_type       vel_rescale
+main(q, p, q_grid, p_grid, q_max,    100,      4200,      m,    0.1,        2,           2,                1,                    0)                                                      
