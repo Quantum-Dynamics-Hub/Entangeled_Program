@@ -87,7 +87,15 @@ def propagate_q(q, p, m, dt):
     return q
 
 def compute_omega(q, m, approx, model):
-# A temperature will be chosne such that the RPMD and EHTD perturbation terms are initially equal
+    """
+    \param[in] q (list of floats) coordinates of all trajectories
+    \param[in] m (float) mass of the particle
+    \param[in] approx (int) selector of the method to entangle trajectories
+              options: ??
+    \param[in] model (int) selector of the model potential (double well or cubic)
+    
+    A temperature will be chosen such that the RPMD and EHTD perturbations are initially equal
+    """
 
     N = len(q)
 
