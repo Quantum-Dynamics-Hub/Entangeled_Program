@@ -44,19 +44,23 @@ def rescale(q, p, w, m, q_max, approx, model, vel, ent_type):
     # instead of the old kinetic energy (subtract), we have a new one (add)
     # E_old + T_old = E_new + alp^2 * T_new
     # alp^2 = (E_old - E_new + T_old)/T_new 
-
-    alp2 = (E_old - E_new + T_old)/T_new    # Ask
+    
+    alp2 = 1.0 
+    if T_new>0.0:
+        alp2 = (E_old - E_new + T_old)/T_new    # Ask
 
     alp = 1.0
     if alp2>0.0:
+
         alp = math.sqrt(alp2)
 
     if vel == 0:
         alp = 1.0
 
     N = len(p_new)
-    for i in range(N):
-        p_new[i] =  alp*p_new[i] 
+    if alp<1.0:
+        for i in range(N):        
+            p_new[i] =  alp*p_new[i] 
 
 
     return q_new, p_new
@@ -258,7 +262,7 @@ for i in range(-100,500):
 
 ent_type = 1      # 1 - ETHD, 2 - RPMD, 3 - QHD2
 model = 1         # 1 - cubic, 2 - double well 
-vel_rescale =  0  # 0 - no, 1 - yes
+vel_rescale =  1  # 0 - no, 1 - yes
 approx = 2        # 2 - H = H0,  H = H0 + H1
 dt = 0.1
 m = 2000.0
