@@ -24,7 +24,7 @@ def rescale(q, p, w, m, q_max, approx, model, vel, ent_type):
         V, f = methods.compute_QHD2_pot_force(q, w, m, approx, model)
 
     T_old = generic_operations.compute_kin(p, m)
-    E_old = sum(V) + T_old
+    E_old = sum(V)
 
     q_new, p_new = generic_operations.traj_absorb(q, p, q_max)
 
@@ -38,15 +38,14 @@ def rescale(q, p, w, m, q_max, approx, model, vel, ent_type):
         V, f = methods.compute_QHD2_pot_force(q, w, m, approx, model)
 
     T_new = generic_operations.compute_kin(p_new, m)
-    E_new = sum(V) + T_new
+    E_new = sum(V)
 
     # Lets compensate for the energy change by rescaling momenta
     # instead of the old kinetic energy (subtract), we have a new one (add)
-    # E_old = E_new - T_new + alp^2 * T_new 
-    # So: E_old - E_new = T_new * ( alp^2 - 1)
-    # alp^2 = 1  +  (E_old - E_new)/T_new 
+    # E_old + T_old = E_new + alp^2 * T_new
+    # alp^2 = (E_old - E_new + T_old)/T_new 
 
-    alp2 = 1.0 + (E_old - E_new)/T_new    # Ask
+    alp2 = (E_old - E_new + T_old)/T_new    # Ask
 
     alp = 1.0
     if alp2>0.0:
@@ -63,7 +62,7 @@ def rescale(q, p, w, m, q_max, approx, model, vel, ent_type):
     return q_new, p_new
 
 
-def propagate_methods(q, p, w, m, f, dt, approx, model, ent_type):
+def propagate_methods(q, p, w, m, f, dt, approx, model, vel, ent_type):
     ############################################################
     # -------- Quantum Propagation: Entangeled Verlet -------- #
     ############################################################
@@ -84,6 +83,7 @@ def propagate_methods(q, p, w, m, f, dt, approx, model, ent_type):
 
     generic_operations.propagate_q(q, p, m, dt)
 
+    q, p = rescale(q, p, w, m, q_max, approx, model, vel, ent_type)
 
     if ent_type == 1:
         V, f = methods.compute_ETHD_pot_force(q, m, approx, model)
@@ -102,7 +102,7 @@ def main(q, p, q_grid, p_grid, q_max, Nsteps, Nsnaps, m, dt, approx, model, ent_
 
     N = len(q)
     t = 0.0; orig = float(N); barrier = 0.0; QG = len(q_grid); PG = len(p_grid)
-
+                 
     w = generic_operations.compute_omega(q, m, approx, model)
     print "omega = ", w
     
@@ -171,19 +171,36 @@ def main(q, p, q_grid, p_grid, q_max, Nsteps, Nsnaps, m, dt, approx, model, ent_
         # Propagate for Nsteps
         for j in range(Nsteps):
 
-            q, p = propagate_methods(q, p, w, m, f, dt, approx, model, ent_type)
+#            q, p = propagate_methods(q, p, w, m, f, dt, approx, model, vel, ent_type)
 
             t = t + dt
 
+#            q, p = rescale(q, p, w, m, q_max, approx, model, vel, ent_type)
+
+            generic_operations.propagate_p(p, f, dt*0.5)
+            generic_operations.propagate_q(q, p, m, dt)
+
             q, p = rescale(q, p, w, m, q_max, approx, model, vel, ent_type)
-            N = len(q)
 
             if ent_type == 1:
                 V, f = methods.compute_ETHD_pot_force(q, m, approx, model)
-            if ent_type == 2:
+            elif ent_type == 2:
                 V, f = methods.compute_RPMD_pot_force(q, w, m, approx, model)
-            if ent_type == 3:
+            elif ent_type == 3:
                 V, f = methods.compute_QHD2_pot_force(q, w, m, approx, model)
+
+            generic_operations.propagate_p(p, f, dt*0.5)
+
+
+
+            N = len(q)
+
+#            if ent_type == 1:
+#                V, f = methods.compute_ETHD_pot_force(q, m, approx, model)
+#            if ent_type == 2:
+#                V, f = methods.compute_RPMD_pot_force(q, w, m, approx, model)
+#            if ent_type == 3:
+#                V, f = methods.compute_QHD2_pot_force(q, w, m, approx, model)
 
 
         s.write(" %8.5f  %8.5f" % (t, V[1]/float(N)) ),
@@ -229,8 +246,7 @@ for i in range(M):
 #    q.append(-1.35 + 0.005*i)
 #    p.append(0.0)
 
-q_max = 50.0
-m = 2000.0
+
 
 q_grid = []; p_grid = []
 for i in range(-200,500):
@@ -238,5 +254,16 @@ for i in range(-200,500):
 
 for i in range(-100,500):
     p_grid.append(0.1*i)                                
-#                                   Nstep      Nsnap     mass    dt       approx       model        Entanglement_type       vel_rescale
-main(q, p, q_grid, p_grid, q_max,    100,      4200,      m,    0.1,        2,           2,                1,                    0)                                                      
+
+
+ent_type = 1      # 1 - ETHD, 2 - RPMD, 3 - QHD2
+model = 1         # 1 - cubic, 2 - double well 
+vel_rescale =  0  # 0 - no, 1 - yes
+approx = 2        # 2 - H = H0,  H = H0 + H1
+dt = 0.1
+m = 2000.0
+Nsnap = 420
+Nstep = 10
+q_max = 5.0
+#                          
+main(q, p, q_grid, p_grid, q_max, Nstep, Nsnap,  m, dt, approx, model, ent_type, vel_rescale)  
