@@ -22,7 +22,7 @@ def double_well_potential(q):
 
     C = 1.0
     a, b = 0.25, 0.5
-    pot = [0.0, 0.0]; f = [0.0]*N
+    pot = [0.0, 0.0]; f = []
 
     for i in range(N):
         q2 = q[i]*q[i]
@@ -31,7 +31,7 @@ def double_well_potential(q):
 
         pot[0] = pot[0] + C*( a*q4 - b*q2 )   
 
-        f[i] = -C*( 4.0*a*q3 - 2.0*b*q[i])
+        f.append( -C*( 4.0*a*q3 - 2.0*b*q[i]) )
 
     return pot, f
 
@@ -56,7 +56,7 @@ def cubic_potential(q, m):
 
         pot[0] = pot[0] + ( (B*(q2)) - (A*q3) )
 
-        f[i] = -( ( 2.0*B*(q[i])) - (3.0*A*q2 ) )     
+        f[i] = ( -( ( 2.0*B*(q[i])) - (3.0*A*q2 ) )  )  
 
     return pot, f
 
