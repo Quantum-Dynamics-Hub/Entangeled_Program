@@ -39,13 +39,10 @@ def harmonic_oscillator(q, w, m, dim):
     pot = [ [0.0]*dim , [0.0]*dim ]
     f = []
 
-    """
-    print "pot = ", pot
-    print "f = ", f
-    print "\n"
-    sys.exit(0)
-    """
-
+    #print "pot = ", pot
+    #print "f = ", f
+    #print "\n"
+    #sys.exit(0)
 
     for i in xrange(N):
         f.append( [0.0]*dim )    
@@ -56,12 +53,10 @@ def harmonic_oscillator(q, w, m, dim):
             # Recall q[particle_index][dimension] -> q[0][1] = first particle, 2nd dof
             f[i][j] = -m[i]*w*w*q[i][j] 
 
-    """
-    print "pot = ", pot
-    print "f = ", f
-    print "\n"
-    sys.exit(0)
-    """
+    #print "pot = ", pot
+    #print "f = ", f
+    #print "\n"
+    #sys.exit(0)
 
     return pot, f
 
@@ -97,12 +92,10 @@ def double_well_potential(q, dim):
             # Recall q[particle_index][dimension] -> q[0][1] = first particle, 2nd dof
             f[i][j] =  -C*( 4.0*a*q3[i][j] - 2.0*b*q[i][j] )
 
-    """
     print "pot = ", pot
     print "f = ", f
     print "\n"
-    sys.exit(0)
-    """
+    #sys.exit(0)
 
     return pot, f
 

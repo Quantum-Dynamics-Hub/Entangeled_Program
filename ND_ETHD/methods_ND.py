@@ -59,11 +59,16 @@ def compute_ETHD_pot_force(q, w, m, dim, approx, model):
         for j in range(dim):
             denom.append( 4.0*m_avg*s2[j]*s2[j] )
 
-        for i in range(N):
-            f.append( [0.0]*dim )
-
+        for i in range(N):           
             for j in range(dim):
                 f[i][j] = f[i][j] + (q[i][j] - avg_q[j])/denom[j]  
+
+
+        #print "\n"
+        #print "Potential with Perturbation = ", pot
+        #print "Force with Perturbation = ", f        
+        #print "\n"
+        #sys.exit(0)
 
         #"""
         
