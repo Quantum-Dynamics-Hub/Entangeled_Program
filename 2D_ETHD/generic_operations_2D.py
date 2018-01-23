@@ -47,7 +47,7 @@ def harmonic_oscillator(q,m,w):
         pot[0][1] = pot[0][1] + 0.5*m[i]*w*w*q[i][1]*q[i][1]
 
         # Force: for the [1st dof, 2nd dof] dimension of each particle
-        # Recall q[particle_index][dimension] -> q[0][1] = first particle, 2nd dof
+        # Recall q[trajectory_index][dof_index] -> q[0][1] = first trajectory, 2-nd dof (e.g. y coordinate of the 1-st atoms)
         f.append( [-m[i]*w*w*q[i][0],-m[i]*w*w*q[i][1]] )
 
     #print "pot = ", pot
