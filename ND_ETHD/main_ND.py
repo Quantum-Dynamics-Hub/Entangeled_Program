@@ -171,8 +171,8 @@ def main(qq, pq, w, q_grid, p_grid, Nsteps, Nsnaps, m, dim, dt, approx, model, e
 # Initilize lists of position, momentum, and mass
 qq = []; pq = []; m = []
 # Declare Number of trajectories 
-Ntraj = 100 
-dim = 1
+Ntraj = 2 
+dim = 2
 
 rnd = Random()
 sigma_q, sigma_p, q_mean, p_mean = [], [], [], []
@@ -184,10 +184,12 @@ for i in xrange(dim):
     sigma_p.append( 0.0 )               
 
 #"""
+print "\n" 
 print "q_mean = ", q_mean
 print "p_mean = ", p_mean
 print "sigma_q = ", sigma_q
 print "sigma_p = ", sigma_p
+print "\n"
 #sys.exit(0)
 #"""
 
